@@ -2,11 +2,13 @@ package log
 
 import (
 	"fmt"
-	deflog "log"
+	"io"
 	"os"
+	"sync"
 	"time"
 )
 
+// Format represents log format of a logger.
 type Format int
 
 const (
@@ -14,42 +16,54 @@ const (
 	FormatJSON
 )
 
+// A Logger represents a logging object.
 type Logger struct {
+	mu        sync.Mutex
 	format    Format
 	threshold Level
 	location  *time.Location
-	logger    *deflog.Logger
+	out       io.Writer
 }
 
+// NewLogger creates a new Logger.
 func NewLogger() *Logger {
-	logger := &Logger{
+	return &Logger{
 		format:    FormatText,
 		threshold: LevelDefault,
 		location:  time.UTC,
-		logger:    deflog.New(os.Stdout, "", 0),
+		out:       os.Stdout,
 	}
-	return logger
 }
 
+// SetLogLevel sets the log level.
 func (logger *Logger) SetLogLevel(lv Level) error {
 	if err := lv.validate(); err != nil {
 		return err
 	}
+	logger.mu.Lock()
+	defer logger.mu.Unlock()
 	logger.threshold = lv
 	return nil
 }
 
+// SetLogFormat sets the log format of the logger.
 func (logger *Logger) SetLogFormat(format Format) error {
+	logger.mu.Lock()
+	defer logger.mu.Unlock()
 	logger.format = format
 	return nil
 }
 
 func (logger *Logger) output(lv Level, message string, a ...interface{}) error {
-	if !lv.higher(logger.threshold) {
-		return nil
-	}
 	if err := lv.validate(); err != nil {
 		return err
+	}
+
+	logger.mu.Lock()
+	defer logger.mu.Unlock()
+
+	if !lv.higher(logger.threshold) {
+		return nil
 	}
 
 	event := newEvent(time.Now().In(logger.location), lv, fmt.Sprintf(message, a...))
@@ -61,7 +75,7 @@ func (logger *Logger) output(lv Level, message string, a ...interface{}) error {
 	case FormatJSON:
 		str = event.json()
 	}
-	logger.logger.Println(str)
+	fmt.Fprintln(logger.out, str)
 	return nil
 }
 
