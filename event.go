@@ -22,8 +22,8 @@ func (t *eventTime) MarshalJSON() ([]byte, error) {
 }
 
 type event struct {
-	Level     string    `json:"lv"`
 	Timestamp eventTime `json:"ts"`
+	Level     string    `json:"lv"`
 	Message   string    `json:"msg,omitempty"`
 }
 

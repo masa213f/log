@@ -6,27 +6,54 @@ import (
 	"github.com/masa213f/log"
 )
 
-func outputLogs(lv log.Level) {
-	fmt.Printf("=== Set log level: %s ===\n", lv.String())
-	log.SetLogLevel(lv)
-
-	log.Debug("debug log")
-	log.Info("info log")
-	log.Warn("warn log")
-	log.Error("error log")
+func outputLogs() {
+	log.Debug("debug message: %s = %d", "hoge", 1)
+	log.Info("info message: %s = %d", "piyo", 2)
+	log.Warn("warn message: %s = %d", "fuga", 3)
+	log.Error("error message: %s = %d", "hoge", 4)
 }
 
 func main() {
-	outputLogs(log.LevelInfo)
-	outputLogs(log.LevelDebug)
-	outputLogs(log.LevelError)
-	outputLogs(log.LevelWarning)
-	outputLogs(log.LevelDefault)
+	fmt.Printf("== Text format(default) ==\n")
 
+	fmt.Printf("= Default(Info) =\n")
+	outputLogs()
+
+	fmt.Printf("\n= Debug =\n")
+	log.SetLogLevel(log.LevelDebug)
+	outputLogs()
+
+	fmt.Printf("\n= Info =\n")
+	log.SetLogLevel(log.LevelInfo)
+	outputLogs()
+
+	fmt.Printf("\n= Warning =\n")
+	log.SetLogLevel(log.LevelWarning)
+	outputLogs()
+
+	fmt.Printf("\n= Error =\n")
+	log.SetLogLevel(log.LevelError)
+	outputLogs()
+
+	fmt.Printf("\n== JSON format ==\n")
 	log.SetLogFormat(log.FormatJSON)
-	outputLogs(log.LevelInfo)
-	outputLogs(log.LevelDebug)
-	outputLogs(log.LevelError)
-	outputLogs(log.LevelWarning)
-	outputLogs(log.LevelDefault)
+	fmt.Printf("= Default(Info) =\n")
+	log.SetLogLevel(log.LevelDefault)
+	outputLogs()
+
+	fmt.Printf("\n= Debug =\n")
+	log.SetLogLevel(log.LevelDebug)
+	outputLogs()
+
+	fmt.Printf("\n= Info =\n")
+	log.SetLogLevel(log.LevelInfo)
+	outputLogs()
+
+	fmt.Printf("\n= Warning =\n")
+	log.SetLogLevel(log.LevelWarning)
+	outputLogs()
+
+	fmt.Printf("\n= Error =\n")
+	log.SetLogLevel(log.LevelError)
+	outputLogs()
 }
